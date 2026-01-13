@@ -1,149 +1,452 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>CV – Kaissari Nada</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaissari Nada | Digital Marketing & Data Specialist</title>
+    <!-- Three.js pour l'expérience 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;800&family=Noto+Sans+Arabic:wght@300;700&display=swap');
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f2f4f7;
-    margin: 0;
-    padding: 0;
-}
+        :root {
+            --bg-color: #050505;
+            --text-color: #ffffff;
+            --accent-color: #00f2ff;
+            --glass: rgba(255, 255, 255, 0.05);
+            --transition: 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
 
-.cv-container {
-    max-width: 900px;
-    background: white;
-    margin: 40px auto;
-    padding: 40px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
+        [data-theme="light"] {
+            --bg-color: #f8f9fa;
+            --text-color: #1a1a1a;
+            --accent-color: #ff3e00;
+            --glass: rgba(0, 0, 0, 0.05);
+        }
 
-.header {
-    text-align: center;
-    border-bottom: 2px solid #333;
-    padding-bottom: 20px;
-}
-.photo {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #333;
-    margin-bottom: 15px;
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
 
-.header h1 {
-    margin: 0;
-    font-size: 32px;
-}
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            transition: background-color var(--transition);
+        }
 
-.header p {
-    margin: 6px 0;
-    font-size: 15px;
-}
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
 
-.section {
-    margin-top: 30px;
-}
+        /* Interface HUD */
+        .hud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px;
+        }
 
-.section h2 {
-    color: #333;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 5px;
-}
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: auto;
+        }
 
-ul {
-    padding-left: 20px;
-}
+        .nav-btn {
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-color);
+            padding: 12px 24px;
+            border-radius: 100px;
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            font-weight: 600;
+            transition: var(--transition);
+            margin-left: 8px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-li {
-    margin-bottom: 8px;
-}
-</style>
+        .nav-btn:hover {
+            background: var(--accent-color);
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Conteneur de Contenu */
+        .content-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            max-width: 700px;
+            z-index: 5;
+            pointer-events: auto;
+        }
+
+        .card {
+            background: var(--glass);
+            padding: 50px;
+            border-radius: 40px;
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.4);
+            animation: slideUp 1s var(--transition);
+            text-align: center;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .profile-img {
+            width: 160px;
+            height: 160px;
+            border-radius: 30px;
+            margin-bottom: 25px;
+            border: 2px solid var(--accent-color);
+            padding: 4px;
+            object-fit: cover;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 { font-size: 3rem; font-weight: 800; line-height: 1.1; margin-bottom: 8px; }
+        .tagline { color: var(--accent-color); font-size: 1.3rem; font-weight: 600; margin-bottom: 20px; }
+        .bio { line-height: 1.6; opacity: 0.8; font-size: 1.1rem; margin-bottom: 25px; }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .skill-item {
+            background: rgba(255,255,255,0.03);
+            padding: 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: 0.3s;
+        }
+
+        .skill-item:hover {
+            border-color: var(--accent-color);
+            background: rgba(255,255,255,0.07);
+        }
+
+        /* Curseur personnalisé */
+        #cursor {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease-out;
+        }
+
+        .bottom-bar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            pointer-events: auto;
+        }
+
+        [dir="rtl"] .top-bar { flex-direction: row-reverse; }
+        
+        .contact-links {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .contact-links a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 700;
+            transition: 0.3s;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .contact-links a:hover { 
+            opacity: 0.7;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .card { padding: 30px; }
+            h1 { font-size: 2rem; }
+            .hud { padding: 20px; }
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="cv-container">
+    <div id="cursor"></div>
+    <div id="canvas-container"></div>
 
-<div class="header">
-    <!-- 👉 Ta photo ici -->
-    <img src="photo.jpg" alt="Photo Kaissari Nada" class="photo">
+    <div class="hud">
+        <div class="top-bar">
+            <div class="logo" style="font-weight: 800; font-size: 1.1rem; letter-spacing: 3px;">K.NADA / STUDIO</div>
+            <div class="controls">
+                <button class="nav-btn" onclick="app.setLanguage('fr')">FR</button>
+                <button class="nav-btn" onclick="app.setLanguage('en')">EN</button>
+                <button class="nav-btn" onclick="app.setLanguage('ar')">AR</button>
+                <button class="nav-btn" id="themeToggle">🌓</button>
+            </div>
+        </div>
+        
+        <div class="bottom-bar">
+            <button class="nav-btn" onclick="app.prevNode()">←</button>
+            <button class="nav-btn" onclick="app.nextNode()">→</button>
+        </div>
+    </div>
 
-    <h1>KAISSARI NADA</h1>
-    <p>Email : kaissarinada2@gmail.com | Téléphone : +212 621-402602</p>
-    <p>
-        GitHub : <a href="https://kaissarinada2.github.io/cv-portfolio/" target="_blank">
-        kaissarinada2.github.io/cv-portfolio</a> |
-        Kaggle : <a href="https://www.kaggle.com/kaissarinada" target="_blank">
-        kaggle.com/kaissarinada</a>
-    </p>
-</div>
+    <div class="content-frame" id="content-target">
+        <!-- Généré par JS -->
+    </div>
 
-<div class="section">
-    <h2>Profil</h2>
-    <p>
-        Étudiante en deuxième année en Marketing Digital et Commercial à l’ESTS (Maroc), motivée, sérieuse et créative.
-        Je dispose de bonnes bases en communication digitale, analyse de données et gestion de projets, acquises à travers ma formation.
-        Je cherche à développer mes compétences professionnelles dans un environnement dynamique.
-    </p>
-</div>
+    <script>
+        /**
+         * DONNÉES DU CV (Format JSON)
+         * Intégration de PHOTO.jpeg et de vos informations
+         */
+        const CV_DATA = [
+            {
+                lang: 'fr',
+                dir: 'ltr',
+                sections: [
+                    {
+                        title: "Profil",
+                        name: "Kaissari Nada",
+                        role: "Marketing Digital & Commercial",
+                        bio: "Étudiante à l'ESTS de Salé. Experte en création de contenu et analyse stratégique, j'allie créativité et précision pour propulser votre présence digitale.",
+                        details: ["Communication Digitale", "Analyse de Données", "Gestion de Projets"],
+                        contact: true
+                    },
+                    {
+                        title: "Expérience",
+                        name: "N&S TEXTEL",
+                        role: "Stage (2025)",
+                        bio: "Immersion opérationnelle : gestion client, suivi des opérations et contribution directe à la communication digitale de l'entreprise.",
+                        details: ["CRM & Relation Client", "Opérations Digitales", "Analyse de Structure"],
+                        contact: false
+                    },
+                    {
+                        title: "Formation",
+                        name: "ESTS Salé",
+                        role: "DUT Marketing (En cours)",
+                        bio: "Formation académique rigoureuse axée sur les nouvelles tendances du marché et la segmentation client stratégique.",
+                        details: ["Bac Économie (2024)", "DUT Marketing Digital", "Outils SPHINX & Canva"],
+                        contact: false
+                    }
+                ]
+            },
+            {
+                lang: 'en',
+                dir: 'ltr',
+                sections: [
+                    {
+                        title: "Profile",
+                        name: "Kaissari Nada",
+                        role: "Digital Marketing Specialist",
+                        bio: "Student at ESTS Salé. Specialist in content creation and strategic analysis, combining creativity with precision to boost your digital presence.",
+                        details: ["Digital Comms", "Data Analysis", "Project Mgmt"],
+                        contact: true
+                    },
+                    {
+                        title: "Experience",
+                        name: "N&S TEXTEL",
+                        role: "Internship (2025)",
+                        bio: "Operational immersion: client management, operations tracking, and direct contribution to digital communication.",
+                        details: ["CRM & Client Relations", "Digital Ops", "Structural Analysis"],
+                        contact: false
+                    }
+                ]
+            },
+            {
+                lang: 'ar',
+                dir: 'rtl',
+                sections: [
+                    {
+                        title: "الملف الشخصي",
+                        name: "قيساري ندى",
+                        role: "التسويق الرقمي والتجاري",
+                        bio: "طالبة في المدرسة العليا للتكنولوجيا بسلا. متخصصة في صناعة المحتوى والتحليل الاستراتيجي، أجمع بين الإبداع والدقة لتعزيز الحضور الرقمي.",
+                        details: ["التواصل الرقمي", "تحليل البيانات", "إدارة المشاريع"],
+                        contact: true
+                    }
+                ]
+            }
+        ];
 
-<div class="section">
-    <h2>Formation</h2>
-    <ul>
-        <li><strong>2023 – 2024 :</strong> Baccalauréat en Sciences Économiques</li>
-        <li><strong>2024 – En cours :</strong> DUT en Marketing Digital et Commercial – ESTS Salé</li>
-    </ul>
-</div>
+        class ImmersiveApp {
+            constructor() {
+                this.currentLang = 'fr';
+                this.currentIndex = 0;
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.points = null;
+                this.mouseX = 0;
+                this.mouseY = 0;
 
-<div class="section">
-    <h2>Expérience Professionnelle</h2>
-    <ul>
-        <li><strong>Stage d’initiation – N&S TEXTEL (2025)</strong>
-            <ul>
-                <li>Découverte du fonctionnement de l’entreprise et de sa structure organisationnelle</li>
-                <li>Participation aux activités commerciales et à la gestion de la relation client</li>
-                <li>Contribution aux tâches liées à la communication digitale et au suivi des opérations</li>
-            </ul>
-        </li>
-    </ul>
-</div>
+                this.initThree();
+                this.initInteractions();
+                this.render();
+                this.animate();
+            }
 
-<div class="section">
-    <h2>Compétences</h2>
-    <ul>
-        <li><strong>Marketing digital :</strong> Réseaux sociaux, Email marketing, CRM, Création de contenu, Communication digitale</li>
-        <li><strong>Outils :</strong> PowerPoint, Canva, SPHINX, GitHub</li>
-        <li><strong>Analyse :</strong> Segmentation client, Étude de marché, Analyse de données</li>
-    </ul>
-</div>
+            initThree() {
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.z = 8;
 
-<div class="section">
-    <h2>Projets</h2>
-    <ul>
-        <li>Création d’un site web statique hébergé sur GitHub Pages pour exposer mes réalisations</li>
-        <li>Création et gestion des réseaux sociaux pour un projet marketing universitaire</li>
-    </ul>
-</div>
+                this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                document.getElementById('canvas-container').appendChild(this.renderer.domElement);
 
-<div class="section">
-    <h2>Langues</h2>
-    <ul>
-        <li>Français : Courant</li>
-        <li>Anglais : Intermédiaire</li>
-        <li>Arabe : Maternelle</li>
-    </ul>
-</div>
+                // Système de particules (Nebula)
+                const geometry = new THREE.BufferGeometry();
+                const count = 3500;
+                const positions = new Float32Array(count * 3);
+                for (let i = 0; i < count * 3; i++) {
+                    positions[i] = (Math.random() - 0.5) * 20;
+                }
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                
+                const material = new THREE.PointsMaterial({
+                    color: 0x00f2ff,
+                    size: 0.035,
+                    transparent: true,
+                    opacity: 0.5
+                });
 
-<div class="section">
-    <h2>Centres d’intérêt</h2>
-    <p>Marketing digital, création de contenu, lecture, musique.</p>
-</div>
+                this.points = new THREE.Points(geometry, material);
+                this.scene.add(this.points);
 
-</div>
+                window.addEventListener('resize', () => this.resize());
+            }
 
+            initInteractions() {
+                const cursor = document.getElementById('cursor');
+                document.addEventListener('mousemove', (e) => {
+                    cursor.style.left = e.clientX + 'px';
+                    cursor.style.top = e.clientY + 'px';
+                    this.mouseX = (e.clientX - window.innerWidth / 2) / 100;
+                    this.mouseY = (e.clientY - window.innerHeight / 2) / 100;
+                });
+
+                document.getElementById('themeToggle').addEventListener('click', () => {
+                    const isDark = document.body.getAttribute('data-theme') !== 'light';
+                    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+                    this.points.material.color.setHex(isDark ? 0xff3e00 : 0x00f2ff);
+                });
+            }
+
+            setLanguage(lang) {
+                this.currentLang = lang;
+                this.currentIndex = 0;
+                this.render();
+                this.warpEffect();
+            }
+
+            nextNode() {
+                const data = CV_DATA.find(d => d.lang === this.currentLang);
+                this.currentIndex = (this.currentIndex + 1) % data.sections.length;
+                this.render();
+                this.warpEffect();
+            }
+
+            prevNode() {
+                const data = CV_DATA.find(d => d.lang === this.currentLang);
+                this.currentIndex = (this.currentIndex - 1 + data.sections.length) % data.sections.length;
+                this.render();
+                this.warpEffect();
+            }
+
+            warpEffect() {
+                this.camera.position.z = 12;
+                setTimeout(() => this.camera.position.z = 8, 250);
+            }
+
+            render() {
+                const langData = CV_DATA.find(d => d.lang === this.currentLang);
+                const section = langData.sections[this.currentIndex];
+                const target = document.getElementById('content-target');
+                
+                document.documentElement.dir = langData.dir;
+
+                let contactHTML = section.contact ? `
+                    <div class="contact-links">
+                        <a href="mailto:kaissarinada2@gmail.com">EMAIL</a>
+                        <a href="https://kaissarinada2.github.io/cv-portfolio/" target="_blank">PORTFOLIO</a>
+                        <a href="https://www.kaggle.com/kaissarinada" target="_blank">KAGGLE</a>
+                    </div>
+                ` : "";
+
+                target.innerHTML = `
+                    <div class="card">
+                        <img src="PHOTO.jpeg" class="profile-img" alt="Kaissari Nada Portrait">
+                        <h1>${section.name}</h1>
+                        <div class="tagline">${section.role}</div>
+                        <p class="bio">${section.bio}</p>
+                        <div class="skills-grid">
+                            ${section.details.map(s => `<div class="skill-item">${s}</div>`).join('')}
+                        </div>
+                        ${contactHTML}
+                    </div>
+                `;
+            }
+
+            resize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                this.points.rotation.y += 0.0008;
+                this.points.rotation.x += 0.0004;
+
+                this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
+                this.camera.position.y += (-this.mouseY - this.camera.position.y) * 0.05;
+                this.camera.lookAt(this.scene.position);
+
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+
+        const app = new ImmersiveApp();
+    </script>
 </body>
 </html>
