@@ -3,450 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaissari Nada | Digital Marketing & Data Specialist</title>
-    <!-- Three.js pour l'expérience 3D -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>Nada Kaissari | Marketing Digital & Commercial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;800&family=Noto+Sans+Arabic:wght@300;700&display=swap');
-
-        :root {
-            --bg-color: #050505;
-            --text-color: #ffffff;
-            --accent-color: #00f2ff;
-            --glass: rgba(255, 255, 255, 0.05);
-            --transition: 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        [data-theme="light"] {
-            --bg-color: #f8f9fa;
-            --text-color: #1a1a1a;
-            --accent-color: #ff3e00;
-            --glass: rgba(0, 0, 0, 0.05);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
-
         body {
-            font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            overflow: hidden;
-            transition: background-color var(--transition);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            scroll-behavior: smooth;
         }
 
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+        .dark {
+            background-color: #030508;
+            color: #cbd5e1;
         }
 
-        /* Interface HUD */
-        .hud {
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .light .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .orb {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
             pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 40px;
         }
 
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            pointer-events: auto;
+        .tab-content {
+            display: none;
+            animation: slideUp 0.5s ease-out forwards;
         }
 
-        .nav-btn {
-            background: var(--glass);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-color);
-            padding: 12px 24px;
-            border-radius: 100px;
-            cursor: pointer;
-            backdrop-filter: blur(15px);
-            font-weight: 600;
-            transition: var(--transition);
-            margin-left: 8px;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .nav-btn:hover {
-            background: var(--accent-color);
-            color: #000;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        /* Conteneur de Contenu */
-        .content-frame {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 85%;
-            max-width: 700px;
-            z-index: 5;
-            pointer-events: auto;
-        }
-
-        .card {
-            background: var(--glass);
-            padding: 50px;
-            border-radius: 40px;
-            backdrop-filter: blur(30px);
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 40px 100px rgba(0,0,0,0.4);
-            animation: slideUp 1s var(--transition);
-            text-align: center;
+        .tab-content.active {
+            display: block;
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(40px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .profile-img {
-            width: 160px;
-            height: 160px;
-            border-radius: 30px;
-            margin-bottom: 25px;
-            border: 2px solid var(--accent-color);
-            padding: 4px;
-            object-fit: cover;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
+        .tilt-card {
+            transition: transform 0.3s ease-out;
+            transform-style: preserve-3d;
         }
 
-        h1 { font-size: 3rem; font-weight: 800; line-height: 1.1; margin-bottom: 8px; }
-        .tagline { color: var(--accent-color); font-size: 1.3rem; font-weight: 600; margin-bottom: 20px; }
-        .bio { line-height: 1.6; opacity: 0.8; font-size: 1.1rem; margin-bottom: 25px; }
-
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .skill-item {
-            background: rgba(255,255,255,0.03);
-            padding: 12px;
-            border-radius: 15px;
-            font-size: 0.85rem;
-            border: 1px solid rgba(255,255,255,0.08);
-            transition: 0.3s;
-        }
-
-        .skill-item:hover {
-            border-color: var(--accent-color);
-            background: rgba(255,255,255,0.07);
-        }
-
-        /* Curseur personnalisé */
-        #cursor {
-            width: 24px;
-            height: 24px;
-            background: var(--accent-color);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 1000;
-            mix-blend-mode: difference;
-            transition: transform 0.1s ease-out;
-        }
-
-        .bottom-bar {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            pointer-events: auto;
-        }
-
-        [dir="rtl"] .top-bar { flex-direction: row-reverse; }
-        
-        .contact-links {
-            margin-top: 25px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .contact-links a {
-            color: var(--accent-color);
-            text-decoration: none;
-            font-weight: 700;
-            transition: 0.3s;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-        }
-
-        .contact-links a:hover { 
-            opacity: 0.7;
-            text-decoration: underline;
-        }
-
-        @media (max-width: 600px) {
-            .card { padding: 30px; }
-            h1 { font-size: 2rem; }
-            .hud { padding: 20px; }
+        .tilt-card:hover {
+            transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) scale(1.02);
         }
     </style>
 </head>
-<body>
+<body class="dark transition-colors duration-500">
+    <!-- Background Orbs -->
+    <div class="orb top-[-10%] right-[-10%] bg-blue-600/10 dark:bg-blue-600/10"></div>
+    <div class="orb bottom-[-10%] left-[-10%] bg-purple-600/10 dark:bg-purple-600/10"></div>
 
-    <div id="cursor"></div>
-    <div id="canvas-container"></div>
-
-    <div class="hud">
-        <div class="top-bar">
-            <div class="logo" style="font-weight: 800; font-size: 1.1rem; letter-spacing: 3px;">K.NADA / STUDIO</div>
-            <div class="controls">
-                <button class="nav-btn" onclick="app.setLanguage('fr')">FR</button>
-                <button class="nav-btn" onclick="app.setLanguage('en')">EN</button>
-                <button class="nav-btn" onclick="app.setLanguage('ar')">AR</button>
-                <button class="nav-btn" id="themeToggle">🌓</button>
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 py-6 transition-all duration-300">
+        <div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">N</div>
+                <span class="text-xl font-bold tracking-tight dark:text-white text-slate-900">K.</span>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <button id="theme-toggle" class="p-2.5 rounded-full bg-slate-800 text-yellow-400 hover:bg-slate-700 transition-colors">
+                    <i data-lucide="sun" id="sun-icon"></i>
+                    <i data-lucide="moon" id="moon-icon" class="hidden text-slate-600"></i>
+                </button>
+                <a href="CV1.pdf" download class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-all">
+                    <i data-lucide="download" class="w-4 h-4"></i> CV
+                </a>
             </div>
         </div>
-        
-        <div class="bottom-bar">
-            <button class="nav-btn" onclick="app.prevNode()">←</button>
-            <button class="nav-btn" onclick="app.nextNode()">→</button>
-        </div>
-    </div>
+    </nav>
 
-    <div class="content-frame" id="content-target">
-        <!-- Généré par JS -->
-    </div>
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 px-6">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
+            <div class="flex-1 text-center md:text-left">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-6 animate-pulse">
+                    <span class="w-2 h-2 rounded-full bg-blue-400"></span> DISPONIBLE POUR NOUVEAUX PROJETS
+                </div>
+                <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight dark:text-white text-slate-900">Nada Kaissari</h1>
+                <p class="text-xl md:text-2xl font-medium mb-8 leading-relaxed dark:text-slate-400 text-slate-600">
+                    Étudiante en <span class="text-blue-500">Marketing Digital & Commercial</span>.
+                </p>
+                <div class="flex flex-wrap justify-center md:justify-start gap-4">
+                    <a href="https://www.linkedin.com/in/nada-kaissari-a45910387/" target="_blank" class="flex items-center gap-2 px-4 py-2 rounded-xl glass hover:bg-slate-800 transition-all"><i data-lucide="linkedin" class="text-blue-500 w-5 h-5"></i> LinkedIn</a>
+                    <a href="https://github.com/kaissarinada2" target="_blank" class="flex items-center gap-2 px-4 py-2 rounded-xl glass hover:bg-slate-800 transition-all"><i data-lucide="github" class="w-5 h-5"></i> GitHub</a>
+                </div>
+            </div>
+            <div class="w-64 h-64 md:w-80 md:h-80 relative">
+                <div class="absolute inset-0 rounded-3xl bg-blue-500 opacity-20 blur-2xl rotate-6"></div>
+                <div class="relative w-full h-full rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl">
+                    <img src="PHOTO.jpeg" alt="Nada" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-6 pb-20">
+        <!-- Tabs -->
+        <div class="flex justify-center mb-16">
+            <div class="p-1.5 rounded-2xl flex gap-1 glass">
+                <button onclick="switchTab('profil')" data-tab="profil" class="tab-btn px-8 py-2.5 rounded-xl text-sm font-semibold transition-all bg-blue-600 text-white">Profil</button>
+                <button onclick="switchTab('experience')" data-tab="experience" class="tab-btn px-8 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-500 hover:text-white">Expérience</button>
+                <button onclick="switchTab('formation')" data-tab="formation" class="tab-btn px-8 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-500 hover:text-white">Formation</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 space-y-12">
+                <div>
+                    <h3 class="text-xl font-bold mb-6 dark:text-white text-slate-900">À propos de moi</h3>
+                    <p class="leading-relaxed">Étudiante en 2ème année à l'ESTS, passionnée par l'intersection du marketing et de la technologie.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-8 dark:text-white text-slate-900">Compétences</h3>
+                    <div class="space-y-6" id="skills-list">
+                        <!-- Skills via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="lg:col-span-2">
+                <!-- Profil Tab -->
+                <div id="profil" class="tab-content active">
+                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><i data-lucide="layout" class="text-blue-500"></i> Projets</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-6 rounded-3xl glass tilt-card">
+                            <i data-lucide="monitor" class="text-blue-500 mb-4"></i>
+                            <h4 class="font-bold mb-2">Portfolio Web Statistique</h4>
+                            <p class="text-sm opacity-70">Déploiement via GitHub Pages pour exposer mes réalisations.</p>
+                        </div>
+                        <div class="p-6 rounded-3xl glass tilt-card">
+                            <i data-lucide="globe" class="text-blue-500 mb-4"></i>
+                            <h4 class="font-bold mb-2">Stratégie Social Media</h4>
+                            <p class="text-sm opacity-70">Gestion des réseaux sociaux pour un projet marketing universitaire.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Experience Tab -->
+                <div id="experience" class="tab-content">
+                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><i data-lucide="briefcase" class="text-blue-500"></i> Expérience</h2>
+                    <div class="p-8 rounded-3xl glass">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="text-xl font-bold">Stage d'initiation</h4>
+                                <p class="text-blue-500 font-bold">N&S TEXTEL</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-400">2025</span>
+                        </div>
+                        <p class="opacity-70 leading-relaxed">Découverte du fonctionnement de l'entreprise, gestion CRM et contribution aux stratégies de communication digitale.</p>
+                    </div>
+                </div>
+
+                <!-- Formation Tab -->
+                <div id="formation" class="tab-content">
+                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><i data-lucide="graduation-cap" class="text-blue-500"></i> Formation</h2>
+                    <div class="space-y-8">
+                        <div class="relative pl-8 border-l-2 border-blue-500/20">
+                            <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-blue-600"></div>
+                            <h4 class="font-bold">DUT en Marketing Digital et Commercial</h4>
+                            <p class="text-blue-500 text-sm">EST de Salé (ESTS)</p>
+                            <p class="text-sm opacity-60">2024 - En cours</p>
+                        </div>
+                        <div class="relative pl-8 border-l-2 border-blue-500/20">
+                            <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-blue-600/50"></div>
+                            <h4 class="font-bold">Baccalauréat Sciences Économiques</h4>
+                            <p class="text-blue-500 text-sm">Lycée</p>
+                            <p class="text-sm opacity-60">2023 - 2024</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-12 border-t border-white/5 dark:bg-[#020407]">
+        <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <p class="text-sm opacity-60">© 2026 Nada Kaissari. Tous droits réservés.</p>
+            <div class="flex gap-6 text-sm">
+                <a href="mailto:kaissarinada2@gmail.com" class="hover:text-blue-500 transition-colors">kaissarinada2@gmail.com</a>
+                <span>+212 621-402602</span>
+            </div>
+        </div>
+    </footer>
 
     <script>
-        /**
-         * DONNÉES DU CV (Format JSON)
-         * Intégration de PHOTO.jpeg et de vos informations
-         */
-        const CV_DATA = [
-            {
-                lang: 'fr',
-                dir: 'ltr',
-                sections: [
-                    {
-                        title: "Profil",
-                        name: "Kaissari Nada",
-                        role: "Marketing Digital & Commercial",
-                        bio: "Étudiante à l'ESTS de Salé. Experte en création de contenu et analyse stratégique, j'allie créativité et précision pour propulser votre présence digitale.",
-                        details: ["Communication Digitale", "Analyse de Données", "Gestion de Projets"],
-                        contact: true
-                    },
-                    {
-                        title: "Expérience",
-                        name: "N&S TEXTEL",
-                        role: "Stage (2025)",
-                        bio: "Immersion opérationnelle : gestion client, suivi des opérations et contribution directe à la communication digitale de l'entreprise.",
-                        details: ["CRM & Relation Client", "Opérations Digitales", "Analyse de Structure"],
-                        contact: false
-                    },
-                    {
-                        title: "Formation",
-                        name: "ESTS Salé",
-                        role: "DUT Marketing (En cours)",
-                        bio: "Formation académique rigoureuse axée sur les nouvelles tendances du marché et la segmentation client stratégique.",
-                        details: ["Bac Économie (2024)", "DUT Marketing Digital", "Outils SPHINX & Canva"],
-                        contact: false
-                    }
-                ]
-            },
-            {
-                lang: 'en',
-                dir: 'ltr',
-                sections: [
-                    {
-                        title: "Profile",
-                        name: "Kaissari Nada",
-                        role: "Digital Marketing Specialist",
-                        bio: "Student at ESTS Salé. Specialist in content creation and strategic analysis, combining creativity with precision to boost your digital presence.",
-                        details: ["Digital Comms", "Data Analysis", "Project Mgmt"],
-                        contact: true
-                    },
-                    {
-                        title: "Experience",
-                        name: "N&S TEXTEL",
-                        role: "Internship (2025)",
-                        bio: "Operational immersion: client management, operations tracking, and direct contribution to digital communication.",
-                        details: ["CRM & Client Relations", "Digital Ops", "Structural Analysis"],
-                        contact: false
-                    }
-                ]
-            },
-            {
-                lang: 'ar',
-                dir: 'rtl',
-                sections: [
-                    {
-                        title: "الملف الشخصي",
-                        name: "قيساري ندى",
-                        role: "التسويق الرقمي والتجاري",
-                        bio: "طالبة في المدرسة العليا للتكنولوجيا بسلا. متخصصة في صناعة المحتوى والتحليل الاستراتيجي، أجمع بين الإبداع والدقة لتعزيز الحضور الرقمي.",
-                        details: ["التواصل الرقمي", "تحليل البيانات", "إدارة المشاريع"],
-                        contact: true
-                    }
-                ]
-            }
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Skills Data
+        const skills = [
+            { name: "Marketing Digital", level: 90 },
+            { name: "Social Media", level: 85 },
+            { name: "Data Analysis", level: 75 },
+            { name: "CRM", level: 80 }
         ];
 
-        class ImmersiveApp {
-            constructor() {
-                this.currentLang = 'fr';
-                this.currentIndex = 0;
-                this.scene = null;
-                this.camera = null;
-                this.renderer = null;
-                this.points = null;
-                this.mouseX = 0;
-                this.mouseY = 0;
+        const skillsContainer = document.getElementById('skills-list');
+        skills.forEach(skill => {
+            skillsContainer.innerHTML += `
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="font-medium">${skill.name}</span>
+                        <span class="opacity-50">${skill.level}%</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-600" style="width: ${skill.level}%"></div>
+                    </div>
+                </div>
+            `;
+        });
 
-                this.initThree();
-                this.initInteractions();
-                this.render();
-                this.animate();
-            }
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
 
-            initThree() {
-                this.scene = new THREE.Scene();
-                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                this.camera.position.z = 8;
-
-                this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-                this.renderer.setSize(window.innerWidth, window.innerHeight);
-                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-                document.getElementById('canvas-container').appendChild(this.renderer.domElement);
-
-                // Système de particules (Nebula)
-                const geometry = new THREE.BufferGeometry();
-                const count = 3500;
-                const positions = new Float32Array(count * 3);
-                for (let i = 0; i < count * 3; i++) {
-                    positions[i] = (Math.random() - 0.5) * 20;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('text-slate-500');
+                if(btn.dataset.tab === tabId) {
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    btn.classList.remove('text-slate-500');
                 }
-                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                
-                const material = new THREE.PointsMaterial({
-                    color: 0x00f2ff,
-                    size: 0.035,
-                    transparent: true,
-                    opacity: 0.5
-                });
-
-                this.points = new THREE.Points(geometry, material);
-                this.scene.add(this.points);
-
-                window.addEventListener('resize', () => this.resize());
-            }
-
-            initInteractions() {
-                const cursor = document.getElementById('cursor');
-                document.addEventListener('mousemove', (e) => {
-                    cursor.style.left = e.clientX + 'px';
-                    cursor.style.top = e.clientY + 'px';
-                    this.mouseX = (e.clientX - window.innerWidth / 2) / 100;
-                    this.mouseY = (e.clientY - window.innerHeight / 2) / 100;
-                });
-
-                document.getElementById('themeToggle').addEventListener('click', () => {
-                    const isDark = document.body.getAttribute('data-theme') !== 'light';
-                    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-                    this.points.material.color.setHex(isDark ? 0xff3e00 : 0x00f2ff);
-                });
-            }
-
-            setLanguage(lang) {
-                this.currentLang = lang;
-                this.currentIndex = 0;
-                this.render();
-                this.warpEffect();
-            }
-
-            nextNode() {
-                const data = CV_DATA.find(d => d.lang === this.currentLang);
-                this.currentIndex = (this.currentIndex + 1) % data.sections.length;
-                this.render();
-                this.warpEffect();
-            }
-
-            prevNode() {
-                const data = CV_DATA.find(d => d.lang === this.currentLang);
-                this.currentIndex = (this.currentIndex - 1 + data.sections.length) % data.sections.length;
-                this.render();
-                this.warpEffect();
-            }
-
-            warpEffect() {
-                this.camera.position.z = 12;
-                setTimeout(() => this.camera.position.z = 8, 250);
-            }
-
-            render() {
-                const langData = CV_DATA.find(d => d.lang === this.currentLang);
-                const section = langData.sections[this.currentIndex];
-                const target = document.getElementById('content-target');
-                
-                document.documentElement.dir = langData.dir;
-
-                let contactHTML = section.contact ? `
-                    <div class="contact-links">
-                        <a href="mailto:kaissarinada2@gmail.com">EMAIL</a>
-                        <a href="https://kaissarinada2.github.io/cv-portfolio/" target="_blank">PORTFOLIO</a>
-                        <a href="https://www.kaggle.com/kaissarinada" target="_blank">KAGGLE</a>
-                    </div>
-                ` : "";
-
-                target.innerHTML = `
-                    <div class="card">
-                        <img src="PHOTO.jpeg" class="profile-img" alt="Kaissari Nada Portrait">
-                        <h1>${section.name}</h1>
-                        <div class="tagline">${section.role}</div>
-                        <p class="bio">${section.bio}</p>
-                        <div class="skills-grid">
-                            ${section.details.map(s => `<div class="skill-item">${s}</div>`).join('')}
-                        </div>
-                        ${contactHTML}
-                    </div>
-                `;
-            }
-
-            resize() {
-                this.camera.aspect = window.innerWidth / window.innerHeight;
-                this.camera.updateProjectionMatrix();
-                this.renderer.setSize(window.innerWidth, window.innerHeight);
-            }
-
-            animate() {
-                requestAnimationFrame(() => this.animate());
-                
-                this.points.rotation.y += 0.0008;
-                this.points.rotation.x += 0.0004;
-
-                this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
-                this.camera.position.y += (-this.mouseY - this.camera.position.y) * 0.05;
-                this.camera.lookAt(this.scene.position);
-
-                this.renderer.render(this.scene, this.camera);
-            }
+            });
         }
 
-        const app = new ImmersiveApp();
+        // Dark Mode Toggle
+        const body = document.body;
+        const themeBtn = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+
+        themeBtn.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            body.classList.toggle('light');
+            sunIcon.classList.toggle('hidden');
+            moonIcon.classList.toggle('hidden');
+        });
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-black/80', 'backdrop-blur-md', 'py-4', 'border-b', 'border-white/5');
+                nav.classList.remove('py-6');
+            } else {
+                nav.classList.remove('bg-black/80', 'backdrop-blur-md', 'py-4', 'border-b', 'border-white/5');
+                nav.classList.add('py-6');
+            }
+        });
     </script>
 </body>
 </html>
