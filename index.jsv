@@ -1,0 +1,450 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Github, 
+  Linkedin, 
+  Mail, 
+  Phone, 
+  ExternalLink, 
+  Moon, 
+  Sun, 
+  Database, 
+  Layout, 
+  TrendingUp,
+  Award, 
+  BookOpen, 
+  Briefcase, 
+  Monitor, 
+  Globe, 
+  PieChart, 
+  Target,
+  Download,
+  Languages
+} from 'lucide-react';
+
+const App = () => {
+  const [darkMode, setDarkMode] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
+  const [activeTab, setActiveTab] = useState('profil');
+  const [lang, setLang] = useState('fr');
+
+  // Dictionnaire de traduction
+  const translations = {
+    fr: {
+      title: "Marketing Digital & Commercial",
+      bio: "Étudiante en 2ème année à l'ESTS, passionnée par l'intersection du marketing et de la technologie. Spécialisée dans la communication digitale, l'analyse de données et la stratégie de croissance.",
+      available: "DISPONIBLE POUR NOUVEAUX PROJETS",
+      contact: "Me contacter",
+      download: "CV",
+      tabs: { profil: "Profil", expérience: "Expérience", projets: "Projets" },
+      about: "À propos de moi",
+      expertises: "Compétences Techniques",
+      languages: "Langues",
+      experienceTitle: "Expériences Professionnelles",
+      educationTitle: "Formation",
+      visionTitle: "Ma Vision",
+      visionSub: "Innover par la Data & le Digital",
+      visionText: '"Mon objectif est de fusionner la créativité du marketing avec la précision de l\'analyse de données pour créer des expériences clients uniques et performantes."',
+      tags: ["Engagement", "Innovation"],
+      footer: "Tous droits réservés.",
+      levels: { materna: "Maternelle", fluent: "Courant", intermediate: "Intermédiaire" },
+      exp1: {
+        role: "Stage d'initiation",
+        company: "N&S TEXTEL",
+        period: "2025",
+        desc: "Découverte du fonctionnement de l'entreprise et de sa structure organisationnelle. Participation active aux activités commerciales, gestion de la relation client (CRM) et contribution aux stratégies de communication digitale."
+      },
+      edu1: {
+        degree: "DUT en Marketing Digital et Commercial",
+        school: "EST de Salé (ESTS)",
+        desc: "Formation intensive sur les leviers digitaux, le marketing stratégique et l'analyse commerciale."
+      },
+      edu2: {
+        degree: "Baccalauréat Sciences Économiques",
+        school: "Lycée",
+        desc: "Bases solides en économie et gestion d'entreprise."
+      },
+      proj1: { title: "Portfolio Web Statistique", desc: "Création et déploiement d'un site web pour exposer mes réalisations professionnelles." },
+      proj2: { title: "Stratégie Social Media", desc: "Conception et gestion complète des réseaux sociaux pour un projet marketing fictif." }
+    },
+    en: {
+      title: "Digital Marketing & Sales",
+      bio: "2nd-year student at ESTS, passionate about the intersection of marketing and technology. Specialized in digital communication, data analysis, and growth strategy.",
+      available: "AVAILABLE FOR NEW PROJECTS",
+      contact: "Contact Me",
+      download: "Resume",
+      tabs: { profil: "Profile", expérience: "Experience", projets: "Projects" },
+      about: "About Me",
+      expertises: "Technical Skills",
+      languages: "Languages",
+      experienceTitle: "Professional Experience",
+      educationTitle: "Education",
+      visionTitle: "My Vision",
+      visionSub: "Innovating through Data & Digital",
+      visionText: '"My goal is to merge marketing creativity with data analysis precision to create unique and high-performing customer experiences."',
+      tags: ["Commitment", "Innovation"],
+      footer: "All rights reserved.",
+      levels: { materna: "Native", fluent: "Fluent", intermediate: "Intermediate" },
+      exp1: {
+        role: "Initiation Internship",
+        company: "N&S TEXTEL",
+        period: "2025",
+        desc: "Discovery of the company's operations and organizational structure. Active participation in commercial activities, customer relationship management (CRM), and contribution to digital communication strategies."
+      },
+      edu1: {
+        degree: "DUT in Digital Marketing and Sales",
+        school: "EST Salé (ESTS)",
+        desc: "Intensive training on digital levers, strategic marketing, and business analysis."
+      },
+      edu2: {
+        degree: "Bachelor's in Economics",
+        school: "High School",
+        desc: "Solid foundation in economics and business management."
+      },
+      proj1: { title: "Statistical Web Portfolio", desc: "Creation and deployment of a website to showcase my professional achievements." },
+      proj2: { title: "Social Media Strategy", desc: "Complete design and management of social networks for a mock marketing project." }
+    },
+    ar: {
+      title: "التسويق الرقمي والتجاري",
+      bio: "طالبة في السنة الثانية بالمدرسة العليا للتكنولوجيا بسلا (ESTS)، شغوفة بتقاطع التسويق والتكنولوجيا. متخصصة في التواصل الرقمي، تحليل البيانات واستراتيجيات النمو.",
+      available: "متاحة للمشاريع الجديدة",
+      contact: "اتصل بي",
+      download: "السيرة الذاتية",
+      tabs: { profil: "الملف الشخصي", expérience: "الخبرة", projets: "المشاريع" },
+      about: "نبذة عني",
+      expertises: "المهارات التقنية",
+      languages: "اللغات",
+      experienceTitle: "الخبرات المهنية",
+      educationTitle: "التكوين الدراسي",
+      visionTitle: "رؤيتي",
+      visionSub: "الابتكار من خلال البيانات والرقمنة",
+      visionText: '"هدفي هو دمج الإبداع التسويقي مع دقة تحليل البيانات لخلق تجارب عملاء فريدة وعالية الأداء."',
+      tags: ["الالتزام", "الابتكار"],
+      footer: "جميع الحقوق محفوظة.",
+      levels: { materna: "اللغة الأم", fluent: "متمكن", intermediate: "متوسط" },
+      exp1: {
+        role: "تدريب أولي",
+        company: "N&S TEXTEL",
+        period: "2025",
+        desc: "اكتشاف سير عمل الشركة وهيكلها التنظيمي. المشاركة النشطة في الأنشطة التجارية، إدارة علاقات العملاء (CRM) والمساهمة في استراتيجيات التواصل الرقمي."
+      },
+      edu1: {
+        degree: "دبلوم في التسويق الرقمي والتجاري",
+        school: "المدرسة العليا للتكنولوجيا بسلا",
+        desc: "تكوين مكثف حول الآليات الرقمية، التسويق الاستراتيجي والتحليل التجاري."
+      },
+      edu2: {
+        degree: "بكالوريا في العلوم الاقتصادية",
+        school: "الثانوية",
+        desc: "قواعد متينة في الاقتصاد وتدبير المقاولات."
+      },
+      proj1: { title: "بورتفوليو ويب إحصائي", desc: "إنشاء ونشر موقع إلكتروني لعرض إنجازاتي المهنية." },
+      proj2: { title: "استراتيجية التواصل الاجتماعي", desc: "تصميم وإدارة كاملة لشبكات التواصل الاجتماعي لمشروع تسويقي جامعي." }
+    }
+  };
+
+  const t = translations[lang];
+  const isRTL = lang === 'ar';
+
+  const profile = {
+    name: "Nada Kaissari",
+    email: "kaissarinada2@gmail.com",
+    phone: "+212 621-402602",
+    github: "https://github.com/kaissarinada2",
+    linkedin: "https://www.linkedin.com/in/nada-kaissari-a45910387/",
+    kaggle: "https://www.kaggle.com/nadakassari",
+    cvFile: "CV1.pdf",
+    profilePic: "PHOTO.jpeg"
+  };
+
+  const skills = [
+    { name: "Marketing Digital", level: 90, icon: Target },
+    { name: "Social Media", level: 85, icon: Globe },
+    { name: "Data Analysis", level: 75, icon: PieChart },
+    { name: "CRM", level: 80, icon: Database },
+    { name: "Content Creation", level: 88, icon: Layout },
+    { name: "Tools (Canva, SPHINX)", level: 82, icon: Monitor }
+  ];
+
+  const langsData = [
+    { name: lang === 'ar' ? 'العربية' : 'Arabe', level: t.levels.materna, percent: 100 },
+    { name: lang === 'ar' ? 'الفرنسية' : 'Français', level: t.levels.fluent, percent: 90 },
+    { name: lang === 'ar' ? 'الإنجليزية' : 'Anglais', level: t.levels.intermediate, percent: 70 }
+  ];
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isRTL]);
+
+  const TiltCard = ({ children, className = "" }) => {
+    const cardRef = useRef(null);
+    const handleMouseMove = (e) => {
+      if (!cardRef.current) return;
+      const rect = cardRef.current.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      const rotateX = (y - 0.5) * 15;
+      const rotateY = (x - 0.5) * -15;
+      cardRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+    };
+    const handleMouseLeave = () => {
+      if (!cardRef.current) return;
+      cardRef.current.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+    };
+    return (
+      <div ref={cardRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className={`transition-all duration-300 ease-out ${className}`}>
+        {children}
+      </div>
+    );
+  };
+
+  const SectionTitle = ({ children, icon: Icon }) => (
+    <div className={`flex items-center gap-4 mb-10 ${isRTL ? 'flex-row-reverse' : ''}`}>
+      <div className={`p-3 rounded-2xl ${darkMode ? 'bg-blue-500/10 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'bg-blue-600/10 text-blue-600'}`}>
+        <Icon size={24} />
+      </div>
+      <h2 className={`text-3xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>{children}</h2>
+      <div className={`flex-1 h-[1px] ${darkMode ? 'bg-slate-800' : 'bg-slate-200'}`}></div>
+    </div>
+  );
+
+  return (
+    <div className={`min-h-screen transition-colors duration-700 ${darkMode ? 'bg-[#030508] text-slate-300' : 'bg-slate-50 text-slate-700'}`}>
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className={`absolute top-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full blur-[120px] ${darkMode ? 'bg-blue-600/10' : 'bg-blue-400/5'}`}></div>
+        <div className={`absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full blur-[120px] ${darkMode ? 'bg-purple-600/10' : 'bg-purple-400/5'}`}></div>
+      </div>
+
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? (darkMode ? 'bg-[#030508]/80 backdrop-blur-md py-3 border-b border-white/5' : 'bg-white/80 backdrop-blur-md py-3 shadow-sm') : 'py-6'}`}>
+        <div className="max-w-6xl mx-auto px-6 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">N</div>
+            <span className={`text-xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>K.</span>
+          </div>
+          
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className={`flex p-1 rounded-xl ${darkMode ? 'bg-slate-900' : 'bg-slate-200'}`}>
+              {['fr', 'en', 'ar'].map((l) => (
+                <button 
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${lang === l ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-blue-400'}`}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
+
+            <button onClick={() => setDarkMode(!darkMode)} className={`p-2.5 rounded-full ${darkMode ? 'bg-slate-800 text-yellow-400 hover:bg-slate-700 transition-colors' : 'bg-white text-slate-600 shadow-md'}`}>
+              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            
+            <a href={profile.cvFile} download className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm ${darkMode ? 'bg-slate-800 text-blue-400 border border-blue-500/20' : 'bg-white text-blue-600 shadow-md border border-slate-100'}`}>
+              <Download size={18} /> <span className="hidden sm:inline">{t.download}</span>
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <div className={`flex flex-col md:flex-row items-center gap-12 ${isRTL ? 'md:flex-row-reverse' : ''}`}>
+            <div className={`flex-1 text-center ${isRTL ? 'md:text-right' : 'md:text-left'}`}>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-6 animate-pulse">
+                <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+                {t.available}
+              </div>
+              <h1 className={`text-5xl md:text-7xl font-extrabold mb-6 tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                {profile.name}
+              </h1>
+              <p className={`text-xl md:text-2xl font-medium mb-8 leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                {lang === 'fr' ? 'Étudiante en ' : lang === 'en' ? 'Student in ' : 'طالبة في '}
+                <span className="text-blue-500">{t.title}</span>.
+              </p>
+              <div className={`flex flex-wrap justify-center gap-4 mb-10 ${isRTL ? 'md:justify-end' : 'md:justify-start'}`}>
+                <a href={profile.linkedin} target="_blank" className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${darkMode ? 'bg-slate-800/50 hover:bg-slate-800 border border-white/5' : 'bg-white shadow-md'}`}>
+                  <Linkedin size={18} className="text-blue-500" /> LinkedIn
+                </a>
+                <a href={profile.github} target="_blank" className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${darkMode ? 'bg-slate-800/50 hover:bg-slate-800 border border-white/5' : 'bg-white shadow-md'}`}>
+                  <Github size={18} className={darkMode ? 'text-white' : 'text-slate-900'} /> GitHub
+                </a>
+                <a href={profile.kaggle} target="_blank" className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${darkMode ? 'bg-slate-800/50 hover:bg-slate-800 border border-white/5' : 'bg-white shadow-md'}`}>
+                  <Database size={18} className="text-cyan-500" /> Kaggle
+                </a>
+              </div>
+            </div>
+            
+            <div className="w-full md:w-2/5 flex justify-center">
+              <TiltCard className="relative w-64 h-64 md:w-80 md:h-80">
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 opacity-20 blur-2xl transform rotate-6"></div>
+                <div className={`relative w-full h-full rounded-3xl overflow-hidden border-2 ${darkMode ? 'border-white/10' : 'border-slate-200'} shadow-2xl bg-slate-800`}>
+                   <img src={profile.profilePic} alt={profile.name} className="w-full h-full object-cover" />
+                </div>
+              </TiltCard>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="max-w-6xl mx-auto px-6 pb-20">
+        <div className="flex justify-center mb-16">
+          <div className={`p-1.5 rounded-2xl flex gap-1 ${darkMode ? 'bg-slate-900/50 border border-white/5' : 'bg-slate-200/50'}`}>
+            {Object.keys(t.tabs).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-8 py-2.5 rounded-xl text-sm font-semibold transition-all capitalize ${activeTab === tab ? (darkMode ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-white text-blue-600 shadow-md') : (darkMode ? 'text-slate-500 hover:text-slate-300' : 'text-slate-500 hover:text-slate-700')}`}
+              >
+                {t.tabs[tab]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="lg:col-span-1 space-y-12">
+            <div className="space-y-6">
+              <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{t.about}</h3>
+              <p className={`leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>{t.bio}</p>
+            </div>
+
+            <div>
+              <h3 className={`text-xl font-bold mb-8 ${darkMode ? 'text-white' : 'text-slate-900'}`}>{t.expertises}</h3>
+              <div className="space-y-6">
+                {skills.map((skill, idx) => (
+                  <div key={idx} className="space-y-2">
+                    <div className={`flex justify-between items-center text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <skill.icon size={16} className="text-blue-500" />
+                        <span className="font-medium">{skill.name}</span>
+                      </div>
+                      <span className="opacity-50">{skill.level}%</span>
+                    </div>
+                    <div className={`h-1.5 w-full rounded-full overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-200'}`}>
+                      <div className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 transition-all duration-1000" style={{ width: `${skill.level}%` }}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className={`flex items-center gap-2 mb-8 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <Languages size={20} className="text-blue-500" />
+                <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{t.languages}</h3>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                {langsData.map((langItem, idx) => (
+                  <div key={idx} className={`p-4 rounded-2xl border ${darkMode ? 'bg-slate-900/40 border-white/5' : 'bg-white border-slate-100 shadow-sm'}`}>
+                    <div className={`flex justify-between items-center mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <span className="font-bold">{langItem.name}</span>
+                      <span className="text-xs text-blue-500 font-semibold uppercase">{langItem.level}</span>
+                    </div>
+                    <div className={`h-1 w-full rounded-full ${darkMode ? 'bg-slate-800' : 'bg-slate-200'}`}>
+                      <div className="h-full bg-blue-500 rounded-full opacity-60" style={{ width: `${langItem.percent}%` }}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-2 space-y-16">
+            {activeTab === 'profil' && (
+              <div className="space-y-16">
+                <section>
+                  <SectionTitle icon={Briefcase}>{t.experienceTitle}</SectionTitle>
+                  <div className="space-y-6">
+                    <TiltCard className={`p-8 rounded-3xl border ${darkMode ? 'bg-slate-900/30 border-white/5 hover:bg-slate-900/50' : 'bg-white border-slate-100 shadow-sm transition-all'}`}>
+                      <div className={`flex justify-between items-start mb-4 ${isRTL ? 'flex-row-reverse text-right' : ''}`}>
+                        <div className={isRTL ? 'text-right' : ''}>
+                          <h4 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{t.exp1.role}</h4>
+                          <p className="text-blue-500 font-bold">{t.exp1.company}</p>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${darkMode ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
+                          {t.exp1.period}
+                        </span>
+                      </div>
+                      <p className={`leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'} ${isRTL ? 'text-right' : ''}`}>
+                        {t.exp1.desc}
+                      </p>
+                    </TiltCard>
+                  </div>
+                </section>
+
+                <section>
+                  <SectionTitle icon={BookOpen}>{t.educationTitle}</SectionTitle>
+                  <div className="space-y-8">
+                    {[t.edu1, t.edu2].map((edu, idx) => (
+                      <div key={idx} className={`relative pb-8 border-l-2 ${darkMode ? 'border-slate-800' : 'border-slate-200'} last:border-0 last:pb-0 ${isRTL ? 'border-l-0 border-r-2 pr-8 pl-0' : 'pl-8'}`}>
+                        <div className={`absolute w-4 h-4 rounded-full bg-blue-600 border-4 border-slate-950 shadow-[0_0_10px_rgba(37,99,235,0.5)] ${isRTL ? 'right-[-9px]' : 'left-[-9px]'}`}></div>
+                        <div className={`flex justify-between items-start mb-1 ${isRTL ? 'flex-row-reverse text-right' : ''}`}>
+                          <h4 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{edu.degree}</h4>
+                          <span className="text-sm opacity-50">{idx === 0 ? '2024+' : '2023-24'}</span>
+                        </div>
+                        <p className={`text-blue-500 text-sm font-medium mb-2 ${isRTL ? 'text-right' : ''}`}>{edu.school}</p>
+                        <p className={`text-sm ${darkMode ? 'text-slate-400' : 'text-slate-500'} ${isRTL ? 'text-right' : ''}`}>{edu.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {activeTab === 'projets' && (
+              <section className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in">
+                {[t.proj1, t.proj2].map((proj, idx) => (
+                  <TiltCard key={idx} className={`p-6 rounded-3xl border ${darkMode ? 'bg-slate-900/30 border-white/5' : 'bg-white shadow-sm'}`}>
+                    <div className={`flex justify-between items-start mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <div className={`p-3 rounded-2xl ${darkMode ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-50 text-blue-600'}`}><Monitor size={20} /></div>
+                      <a href="#" className="p-2 text-slate-500 hover:text-white"><ExternalLink size={18} /></a>
+                    </div>
+                    <h4 className={`text-lg font-bold mb-2 ${darkMode ? 'text-white' : 'text-slate-900'} ${isRTL ? 'text-right' : ''}`}>{proj.title}</h4>
+                    <p className={`text-sm mb-4 leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'} ${isRTL ? 'text-right' : ''}`}>{proj.desc}</p>
+                    <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-blue-500/10 text-blue-500">
+                      {idx === 0 ? 'GitHub' : 'Social Media'}
+                    </span>
+                  </TiltCard>
+                ))}
+              </section>
+            )}
+
+            {activeTab === 'expérience' && (
+              <div className="space-y-12 animate-in">
+                <SectionTitle icon={TrendingUp}>{t.visionTitle}</SectionTitle>
+                <div className={`p-10 rounded-[40px] ${darkMode ? 'bg-gradient-to-br from-blue-600/10 to-transparent border border-white/5' : 'bg-blue-50/50 border border-blue-100'} ${isRTL ? 'text-right' : ''}`}>
+                  <h3 className={`text-2xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-slate-900'}`}>{t.visionSub}</h3>
+                  <p className={`text-lg leading-relaxed mb-6 italic ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{t.visionText}</p>
+                  <div className={`flex gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    {t.tags.map((tag, i) => (
+                      <div key={i} className="px-6 py-2 rounded-full bg-blue-600 text-white font-bold text-sm">{tag}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+
+      <footer className={`py-12 border-t ${darkMode ? 'bg-[#020407] border-white/5' : 'bg-white border-slate-200'}`}>
+        <div className={`max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 ${isRTL ? 'md:flex-row-reverse' : ''}`}>
+          <p className="text-sm font-medium">© 2026 Nada Kaissari. {t.footer}</p>
+          <div className={`flex gap-8 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <a href={`tel:${profile.phone}`} className="flex items-center gap-2 text-sm hover:text-blue-500 transition-colors"><Phone size={16} /> {profile.phone}</a>
+            <a href={`mailto:${profile.email}`} className="flex items-center gap-2 text-sm hover:text-blue-500 transition-colors"><Mail size={16} /> {profile.email}</a>
+          </div>
+        </div>
+      </footer>
+
+      <style>{`
+        @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-in { animation: fade-in 0.6s ease-out forwards; }
+      `}</style>
+    </div>
+  );
+};
+
+export default App;
